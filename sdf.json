@@ -1,0 +1,85 @@
+{
+  "data": [
+    {
+      "title": "Monitor",
+      "monitor": [
+        {
+          "name": "JSFiddle",
+          "url": "https://jsfiddle.net/",
+          "width": 1,
+          "zoom": 40
+        },
+        {
+          "name": "CodePen",
+          "url": "https://codepen.io/",
+          "width": 1,
+          "zoom": 40
+        },
+        {
+          "name": "Replit",
+          "url": "https://replit.com/",
+          "width": 1,
+          "zoom": 40
+        },
+        {
+          "name": "Glitch",
+          "url": "https://glitch.com/",
+          "width": 1,
+          "zoom": 40
+        },
+        {
+          "name": "CodeSandbox",
+          "url": "https://codesandbox.io/",
+          "zoom": 40,
+          "width": 2
+        },
+        {
+          "name": "StackBlitz",
+          "url": "https://stackblitz.com/",
+          "zoom": 30
+        }
+      ]
+    },
+    {
+      "title": "Uptime",
+      "monitor": [
+        {
+          "name": "Wikipedia",
+          "url": "https://en.wikipedia.org/",
+          "zoom": 30,
+          "width": 1
+        },
+        {
+          "name": "Archive.org",
+          "url": "https://archive.org/",
+          "zoom": 20,
+          "width": 1
+        },
+        {
+          "name": "Internet Archive",
+          "url": "https://web.archive.org/",
+          "zoom": 30,
+          "width": 1
+        },
+        {
+          "name": "Wayback Machine",
+          "url": "https://archive.org/web/",
+          "zoom": 30,
+          "width": 1
+        },
+        {
+          "name": "Open Library",
+          "url": "https://openlibrary.org/",
+          "zoom": 40,
+          "width": 1
+        },
+        {
+          "name": "Internet Archive TV",
+          "url": "https://archive.org/details/tv",
+          "zoom": 30,
+          "width": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1960 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoring Dashboard</title>
+
+    <!-- PWA Meta Tags -->
+    <meta
+      name="description"
+      content="System and service monitoring dashboard"
+    />
+    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Monitoring" />
+    <meta name="msapplication-TileColor" content="#1a1a1a" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/jpeg" href="logo.jpg" />
+    <link rel="apple-touch-icon" href="logo.jpg" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Vazirmatn", "Segoe UI", Tahoma, Geneva, Verdana,
+          sans-serif;
+        background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+        color: #ffffff;
+        overflow-x: hidden; /* فقط اسکرول افقی غیرفعال */
+        overflow-y: auto; /* اسکرول عمودی فعال */
+        min-height: 100vh; /* حداقل ارتفاع صفحه */
+      }
+
+      html {
+        scroll-behavior: smooth; /* اسکرول نرم */
+      }
+
+      .header {
+        background: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .title {
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .status-info {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        font-size: 11px;
+        color: #aaa;
+        flex-wrap: wrap;
+      }
+
+      .status-info div {
+        background: #333;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid #555;
+        white-space: nowrap;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .tabs-container {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 5px 0;
+      }
+
+      .tab {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .tab:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .tab.active {
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .grid-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .grid-controls label {
+        font-size: 12px;
+        color: #ccc;
+      }
+
+      .grid-controls input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        width: 50px;
+        font-size: 12px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .grid-controls button {
+        font-family: "Vazirmatn", sans-serif;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+        transition: all 0.3s;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .grid-controls button:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .control-button {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .control-button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .control-button.active {
+        background: rgba(255, 255, 255, 0.25);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Fullscreen mode styles */
+      :fullscreen {
+        background: #1a1a1a;
+      }
+
+      :-webkit-full-screen {
+        background: #1a1a1a;
+      }
+
+      :-moz-full-screen {
+        background: #1a1a1a;
+      }
+
+      :-ms-fullscreen {
+        background: #1a1a1a;
+      }
+
+      /* PWA Styles */
+      @media (display-mode: standalone) {
+        .header {
+          padding-top: env(safe-area-inset-top);
+        }
+
+        body {
+          -webkit-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+        }
+      }
+
+      /* PWA Install Button */
+      #installBtn {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      #installBtn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      #installBtn:active {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(0);
+      }
+
+      /* Auto switch button */
+      #autoSwitchBtn.active {
+        background: rgba(255, 152, 0, 0.3);
+        color: #ffffff;
+        border-color: rgba(255, 152, 0, 0.5);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+      }
+
+      #autoSwitchBtn.active:hover {
+        background: rgba(255, 152, 0, 0.4);
+        border-color: rgba(255, 152, 0, 0.6);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(255, 152, 0, 0.3);
+      }
+
+      .monitor-grid {
+        display: grid;
+        gap: 8px;
+        padding: 5px;
+        min-height: calc(100vh - 80px);
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        margin: 10px;
+        /* remove overflow-y: auto from here */
+        /* prevent overlapping in small width */
+        grid-auto-flow: row;
+        grid-auto-rows: minmax(200px, auto);
+      }
+
+      .monitor-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        aspect-ratio: 16/9;
+        min-height: 200px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .monitor-header {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+        position: relative;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .monitor-name {
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #ffffff;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      .monitor-zoom {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .monitor-iframe {
+        flex: 1;
+        border: none;
+        background: #fff;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        pointer-events: none; /* disable iframe interaction */
+        overflow: hidden; /* disable scroll */
+        /* set viewport for desktop display */
+        transform-origin: top left;
+      }
+
+      .iframe-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        /* set desktop dimensions */
+        min-width: 300px;
+        min-height: 200px;
+      }
+
+      .iframe-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        cursor: pointer;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .monitor-item:hover .iframe-overlay {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .click-hint {
+        font-family: "Vazirmatn", sans-serif;
+        background: rgba(0, 255, 136, 0.9);
+        color: #000;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      }
+
+      .monitor-item:hover .click-hint {
+        transform: translateY(0);
+      }
+
+      .scroll-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .scroll-to-top.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .scroll-to-top:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: rgba(30, 30, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 0;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+      }
+
+      .close-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .iframe-error {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1a1a1a;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .error-content {
+        text-align: center;
+        color: #fff;
+        padding: 20px;
+      }
+
+      .error-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+      }
+
+      .error-text {
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 14px;
+        color: #ff6b6b;
+        margin-bottom: 15px;
+      }
+
+      .open-external-btn {
+        font-family: "Vazirmatn", sans-serif;
+        background: #00ff88;
+        color: #000;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .open-external-btn:hover {
+        background: #00cc6a;
+      }
+
+      .monitor-item:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .monitor-name {
+        font-size: 16px;
+        font-weight: bold;
+        color: #00ff88;
+        margin-bottom: 5px;
+      }
+
+      .monitor-url {
+        font-size: 12px;
+        color: #aaa;
+        word-break: break-all;
+        margin-bottom: 5px;
+      }
+
+      .monitor-info {
+        font-size: 11px;
+        color: #888;
+        display: flex;
+        gap: 10px;
+      }
+
+      .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .fullscreen-content {
+        width: 95vw;
+        height: 95vh;
+        background: #2d2d2d;
+        border-radius: 10px;
+        border: 2px solid #00ff88;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .fullscreen-header {
+        background: #333;
+        padding: 10px 10px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .fullscreen-title {
+        font-family: "Vazirmatn", sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #00ff88;
+      }
+
+      .close-btn {
+        font-family: "Vazirmatn", sans-serif;
+        background: #ff4444;
+        color: #fff;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .close-btn:hover {
+        background: #cc3333;
+      }
+
+      .fullscreen-iframe {
+        flex: 1;
+        border: none;
+        border-radius: 0 0 8px 8px;
+        pointer-events: auto;
+        overflow: auto;
+      }
+
+      .loading {
+        font-family: "Vazirmatn", sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        font-size: 18px;
+        color: #00ff88;
+      }
+
+      .status-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #00ff88;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 1024px) {
+        .monitor-item {
+          min-height: 180px;
+        }
+
+        .monitor-grid {
+          grid-template-columns: repeat(2, 1fr);
+          grid-auto-rows: minmax(180px, auto);
+        }
+
+        .grid-controls {
+          gap: 6px;
+        }
+
+        .tab {
+          padding: 5px 10px;
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          flex-direction: column;
+          gap: 10px;
+          padding: 6px 15px;
+        }
+
+        .title {
+          font-size: 20px;
+        }
+
+        .controls {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .tabs-container {
+          justify-content: center;
+          margin-bottom: 8px;
+        }
+
+        .tab {
+          padding: 5px 10px;
+          font-size: 11px;
+        }
+
+        .grid-controls {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 6px;
+        }
+
+        .grid-controls input {
+          width: 45px;
+          padding: 3px 6px;
+          font-size: 11px;
+        }
+
+        .grid-controls button {
+          padding: 5px 10px;
+          font-size: 11px;
+        }
+
+        .monitor-item {
+          min-height: 150px;
+        }
+
+        .monitor-grid {
+          grid-template-columns: 1fr;
+          grid-auto-rows: minmax(150px, auto);
+        }
+
+        .status-info {
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        .status-info div {
+          font-size: 10px;
+          padding: 2px 6px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header {
+          padding: 4px 10px;
+        }
+
+        .title {
+          font-size: 18px;
+        }
+
+        .tabs-container {
+          gap: 3px;
+          margin-bottom: 6px;
+        }
+
+        .tab {
+          padding: 4px 8px;
+          font-size: 10px;
+        }
+
+        .grid-controls {
+          gap: 4px;
+        }
+
+        .grid-controls input {
+          width: 40px;
+          padding: 2px 4px;
+          font-size: 10px;
+        }
+
+        .grid-controls button {
+          padding: 4px 8px;
+          font-size: 10px;
+        }
+
+        .monitor-item {
+          min-height: 120px;
+        }
+
+        .monitor-grid {
+          grid-template-columns: 1fr;
+          grid-auto-rows: minmax(120px, auto);
+          padding: 5px;
+        }
+
+        .monitor-header {
+          padding: 4px 6px;
+        }
+
+        .monitor-name {
+          font-family: "Vazirmatn", sans-serif;
+          font-size: 9px;
+        }
+
+        .monitor-zoom {
+          font-size: 8px;
+        }
+
+        .status-info {
+          font-size: 9px;
+        }
+
+        .status-info div {
+          padding: 2px 4px;
+          font-size: 9px;
+        }
+
+        .click-hint {
+          font-size: 10px;
+          padding: 6px 12px;
+        }
+
+        .error-text {
+          font-size: 12px;
+        }
+
+        .open-external-btn {
+          font-size: 10px;
+          padding: 6px 12px;
+        }
+      }
+
+      /* Mobile landscape */
+      @media (max-width: 768px) and (orientation: landscape) {
+        .header {
+          padding: 4px 10px;
+        }
+
+        .title {
+          font-size: 16px;
+        }
+
+        .tabs-container {
+          gap: 3px;
+          margin-bottom: 4px;
+        }
+
+        .tab {
+          padding: 3px 6px;
+          font-size: 10px;
+        }
+
+        .grid-controls {
+          gap: 4px;
+        }
+
+        .monitor-item {
+          min-height: 100px;
+        }
+
+        .monitor-grid {
+          grid-template-columns: repeat(2, 1fr);
+          grid-auto-rows: minmax(100px, auto);
+        }
+
+        .status-info {
+          flex-direction: row;
+          gap: 4px;
+        }
+      }
+
+      /* Tablet landscape */
+      @media (max-width: 1024px) and (orientation: landscape) {
+        .monitor-item {
+          min-height: 160px;
+        }
+
+        .monitor-grid {
+          grid-template-columns: repeat(3, 1fr);
+          grid-auto-rows: minmax(160px, auto);
+        }
+
+        .grid-controls {
+          gap: 8px;
+        }
+      }
+
+      /* Touch devices */
+      @media (hover: none) and (pointer: coarse) {
+        .tab:hover {
+          background: #333;
+          border-color: #555;
+        }
+
+        .tab:active {
+          background: #00ff88;
+          color: #000;
+          border-color: #00ff88;
+        }
+
+        .control-button:hover {
+          background: #333;
+          border-color: #555;
+        }
+
+        .control-button:active {
+          background: #00ff88;
+          color: #000;
+          border-color: #00ff88;
+        }
+
+        .monitor-item:hover {
+          transform: none;
+        }
+
+        .monitor-item:active {
+          transform: scale(0.98);
+        }
+      }
+
+      /* Accessibility */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+
+        .status-indicator {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div
+        class="title"
+        style="
+          display: flex;
+          flex-direction: row;
+          justify-content: start;
+          gap: 10px;
+        "
+      >
+        📺 Monitoring
+
+        <div class="tabs-container" id="tabsContainer">
+          <!-- Tabs are added dynamically -->
+        </div>
+      </div>
+      <!-- <div class="status-info" style="display: flex; flex-direction: row">
+        <div id="lastUpdate">آخرین بروزرسانی: در حال بارگذاری...</div>
+        <div id="nextUpdate">بروزرسانی بعدی: 5 دقیقه</div>
+        <div id="itemCount">تعداد مانیتورها: 0</div>
+      </div> -->
+      <div class="controls">
+        <!-- Tabs -->
+
+        <div class="grid-controls">
+          <label for="rows">Rows:</label>
+          <input
+            type="number"
+            id="rows"
+            min="1"
+            value="3"
+            onchange="updateGrid()"
+            style="width: 60px; margin: 0 10px"
+          />
+          <label for="cols">Columns:</label>
+          <input
+            type="number"
+            id="cols"
+            min="1"
+            value="3"
+            onchange="updateGrid()"
+            style="width: 60px; margin: 0 10px"
+          />
+          <button onclick="refreshAPI()" class="control-button">🔄 API</button>
+          <button onclick="refreshAllIframes()" class="control-button">
+            🔄 Windows
+          </button>
+          <button onclick="showAPIUrlManager()" class="control-button">
+            ⚙️ URL
+          </button>
+          <button onclick="toggleFullscreen()" class="control-button">
+            🖥️ Fullscreen
+          </button>
+          <button
+            onclick="installPWA()"
+            class="control-button"
+            id="installBtn"
+            style="display: none"
+          >
+            📱 Install App
+          </button>
+          <button
+            onclick="toggleAutoSwitch()"
+            class="control-button"
+            id="autoSwitchBtn"
+          >
+            🔄Switch
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="monitor-grid" id="monitorGrid">
+      <div class="loading">Loading...</div>
+    </div>
+
+    <button
+      class="scroll-to-top"
+      id="scrollToTop"
+      onclick="scrollToTop()"
+      title="Back to top"
+    >
+      ↑
+    </button>
+
+    <!-- URL Management Modal -->
+    <div id="urlManagerModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>⚙️ API URL Management</h3>
+          <button class="close-btn" onclick="closeAPIUrlManager()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="apiUrlInput">API URL:</label>
+            <input
+              type="url"
+              id="apiUrlInput"
+              placeholder="https://example.com"
+              style="
+                width: 100%;
+                padding: 8px;
+                margin: 5px 0;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+              "
+            />
+          </div>
+          <div class="form-group">
+            <label for="jsonEditor">Edit sample data:</label>
+            <textarea
+              id="jsonEditor"
+              rows="8"
+              placeholder="JSON data here..."
+              style="
+                width: 100%;
+                padding: 8px;
+                margin: 5px 0;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                color: #fff;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                resize: vertical;
+              "
+            ></textarea>
+          </div>
+          <div class="form-actions">
+            <button onclick="saveAPIUrl()" class="control-button">
+              💾 Save and Load
+            </button>
+            <button onclick="applyJsonData()" class="control-button">
+              ⚡ Apply JSON
+            </button>
+            <button onclick="resetAPIUrl()" class="control-button">
+              🔄 Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fullscreen-overlay" id="fullscreenOverlay">
+      <div class="fullscreen-content">
+        <div class="fullscreen-header">
+          <div class="fullscreen-title" id="fullscreenTitle">Title</div>
+          <button class="close-btn" onclick="closeFullscreen()">✕</button>
+        </div>
+        <iframe class="fullscreen-iframe" id="fullscreenIframe" src=""></iframe>
+      </div>
+    </div>
+
+    <script>
+      // monitor data from API (empty initially)
+      let monitorData = [];
+      let apiData = []; // complete data from API
+      let currentTab = 1; // current active tab (Uptime)
+      let autoSwitchInterval = null; // auto switch timer
+      let lastActivity = Date.now(); // last user activity
+
+      let currentRows = 3;
+      let currentCols = 3;
+
+      // localStorage management functions
+      function saveToLocalStorage(key, data) {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+          console.error("Error saving localStorage:", error);
+        }
+      }
+
+      function loadFromLocalStorage(key, defaultValue = null) {
+        try {
+          const data = localStorage.getItem(key);
+          return data ? JSON.parse(data) : defaultValue;
+        } catch (error) {
+          console.error("Error reading localStorage:", error);
+          return defaultValue;
+        }
+      }
+
+      // load settings from localStorage
+      function loadSettings() {
+        const savedRows = loadFromLocalStorage("monitorRows", 3);
+        const savedCols = loadFromLocalStorage("monitorCols", 3);
+        const savedApiData = loadFromLocalStorage("apiData", []);
+        const savedTab = loadFromLocalStorage("currentTab", 1);
+
+        currentRows = savedRows;
+        currentCols = savedCols;
+        apiData = savedApiData;
+        currentTab = savedTab;
+
+        // update input fields
+        document.getElementById("rows").value = currentRows;
+        document.getElementById("cols").value = currentCols;
+      }
+
+      // save settings to localStorage
+      function saveSettings() {
+        saveToLocalStorage("monitorRows", currentRows);
+        saveToLocalStorage("monitorCols", currentCols);
+        saveToLocalStorage("apiData", apiData);
+        saveToLocalStorage("currentTab", currentTab);
+      }
+
+      function createMonitorItem(item) {
+        // set default zoom
+        const zoom = item.zoom || 100;
+
+        return `
+                <div class="monitor-item" onclick="openFullscreen('${
+                  item.name
+                }', '${item.url}', ${zoom})">
+                    <div class="monitor-header">
+                        <div class="status-indicator"></div>
+                        <div class="monitor-name">${item.name}</div>
+                        <div class="monitor-zoom">${zoom}%</div>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe class="monitor-iframe" src="${
+                          item.url
+                        }" style="zoom: ${zoom / 100};" 
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+                        onerror="showIframeError(this)"
+                        onload="hideIframeError(this)"
+                        loading="lazy"></iframe>
+                        <div class="iframe-overlay">
+                            <div class="click-hint">Click for fullscreen</div>
+                        </div>
+                        <div class="iframe-error" style="display: none;">
+                            <div class="error-content">
+                                <div class="error-icon">⚠️</div>
+                                <div class="error-text">Direct display not available</div>
+                                <button class="open-external-btn" onclick="event.stopPropagation(); window.open('${
+                                  item.url
+                                }', '_blank')">Open in new tab</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      function updateGrid() {
+        const rows = parseInt(document.getElementById("rows").value);
+        const cols = parseInt(document.getElementById("cols").value);
+
+        if (rows < 1 || cols < 1) {
+          alert("Rows and columns must be at least 1");
+          return;
+        }
+
+        currentRows = rows;
+        currentCols = cols;
+
+        // save settings to localStorage
+        saveToLocalStorage("monitorRows", currentRows);
+        saveToLocalStorage("monitorCols", currentCols);
+        saveToLocalStorage("currentTab", currentTab);
+
+        const grid = document.getElementById("monitorGrid");
+
+        const monitorCount = monitorData.length;
+
+        // set grid - configure columns and rows
+        grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+        // create monitor items
+        let html = "";
+
+        // add all existing monitors
+        monitorData.forEach((item, index) => {
+          html += createMonitorItem(item);
+        });
+
+        grid.innerHTML = html;
+
+        // check iframe errors after creating new grid
+        setTimeout(checkIframeErrors, 1000);
+      }
+
+      // iframe error management functions
+      function showIframeError(iframe) {
+        const container = iframe.parentElement;
+        const errorDiv = container.querySelector(".iframe-error");
+        if (errorDiv) {
+          errorDiv.style.display = "flex";
+        }
+      }
+
+      function hideIframeError(iframe) {
+        const container = iframe.parentElement;
+        const errorDiv = container.querySelector(".iframe-error");
+        if (errorDiv) {
+          errorDiv.style.display = "none";
+        }
+      }
+
+      // check iframe error with timer
+      function checkIframeErrors() {
+        const iframes = document.querySelectorAll(".monitor-iframe");
+        iframes.forEach((iframe) => {
+          setTimeout(() => {
+            try {
+              // if iframe is not accessible, show error
+              if (!iframe.contentDocument && !iframe.contentWindow) {
+                showIframeError(iframe);
+              }
+            } catch (e) {
+              showIframeError(iframe);
+            }
+          }, 3000); // wait 3 seconds
+        });
+      }
+
+      // automatic API update function
+      async function fetchMonitorData() {
+        try {
+          updateStatus("Updating API...", "");
+
+          // use saved URL or sample file
+          let apiUrl = loadFromLocalStorage("apiUrl", "");
+          if (!apiUrl) {
+            // if URL not saved, use sample data
+            useSampleData();
+            return;
+          }
+
+          const response = await fetch(apiUrl);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.data && Array.isArray(data.data)) {
+            // save complete data
+            apiData = data.data;
+
+            // create tabs
+            createTabs();
+
+            // show saved tab or first tab
+            if (apiData.length > 0) {
+              const savedTab = loadFromLocalStorage("currentTab", 1);
+              const tabIndex = Math.min(savedTab, apiData.length - 1); // ensure tab exists
+              switchTab(tabIndex);
+            }
+
+            // save data to localStorage
+            saveToLocalStorage("apiData", apiData);
+            saveToLocalStorage("currentTab", currentTab);
+
+            // update status
+            const now = new Date();
+            const timeString = now.toLocaleTimeString("fa-IR");
+            updateStatus(
+              `Last update: ${timeString} (${monitorData.length} items)`,
+              "Next update: 5 minutes"
+            );
+          }
+        } catch (error) {
+          console.error("Error fetching API data:", error);
+          console.error("Error details:", error.message);
+
+          // try to use sample data
+          useSampleData();
+          return;
+
+          updateStatus(
+            "API update error: " + error.message,
+            "Retry: 5 minutes"
+          );
+
+          // if localStorage is empty, show error message
+          if (monitorData.length === 0) {
+            const grid = document.getElementById("monitorGrid");
+            grid.innerHTML = `
+              <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #ff6b6b;">
+                <h3>Error loading data</h3>
+                <p>Cannot connect to API: ${error.message}</p>
+                <p style="color: #ffa500; margin-top: 10px;">Sample file is also not available</p>
+                <button onclick="fetchMonitorData()" style="background: #00ff88; color: #000; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                  🔄 Retry
+                </button>
+              </div>
+            `;
+          }
+        }
+      }
+
+      // بروزرسانی وضعیت
+      function updateStatus(lastUpdate, nextUpdate) {
+        const lastUpdateEl = document.getElementById("lastUpdate");
+        const nextUpdateEl = document.getElementById("nextUpdate");
+        const itemCountEl = document.getElementById("itemCount");
+
+        if (lastUpdateEl) lastUpdateEl.textContent = lastUpdate;
+        if (nextUpdateEl) nextUpdateEl.textContent = nextUpdate;
+        if (itemCountEl)
+          itemCountEl.textContent = `Monitor count: ${monitorData.length}`;
+      }
+
+      // automatic update every 5 minutes
+      function startAutoRefresh() {
+        setInterval(fetchMonitorData, 300000); // 5 minutes (300000 milliseconds)
+      }
+
+      // automatic iframe refresh every 2 minutes
+      function startIframeRefresh() {
+        setInterval(refreshAllIframes, 120000); // 2 minutes (120000 milliseconds)
+      }
+
+      // refresh all iframes
+      function refreshAllIframes() {
+        const iframes = document.querySelectorAll(".monitor-iframe");
+        iframes.forEach((iframe) => {
+          const currentSrc = iframe.src;
+          iframe.src = "";
+          setTimeout(() => {
+            iframe.src = currentSrc;
+          }, 100);
+        });
+
+        // update status
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("fa-IR");
+        updateStatus(
+          `Last iframe refresh: ${timeString}`,
+          "Next refresh: 2 minutes"
+        );
+      }
+
+      function openFullscreen(name, url, zoom) {
+        const overlay = document.getElementById("fullscreenOverlay");
+        const title = document.getElementById("fullscreenTitle");
+        const iframe = document.getElementById("fullscreenIframe");
+
+        title.textContent = name;
+
+        // check if iframe has already loaded this URL
+        const currentSrc = iframe.src;
+        const targetSrc = url;
+
+        // only change src if URL is different or iframe is empty
+        if (!currentSrc || currentSrc !== targetSrc) {
+          iframe.src = targetSrc;
+        } else {
+        }
+
+        // remove zoom in fullscreen mode - normal zoom (100%)
+        iframe.style.zoom = "1";
+
+        // enable iframe interaction in fullscreen mode
+        iframe.style.pointerEvents = "auto";
+        iframe.style.overflow = "auto";
+
+        overlay.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeFullscreen() {
+        const overlay = document.getElementById("fullscreenOverlay");
+        const iframe = document.getElementById("fullscreenIframe");
+
+        overlay.style.display = "none";
+        iframe.src = "";
+
+        // disable iframe interaction
+        iframe.style.pointerEvents = "none";
+        iframe.style.overflow = "hidden";
+
+        document.body.style.overflow = "auto";
+      }
+
+      // close with Escape key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          closeFullscreen();
+        }
+      });
+
+      // close by clicking on background
+      document
+        .getElementById("fullscreenOverlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            closeFullscreen();
+          }
+        });
+
+      // create tabs function
+      function createTabs() {
+        const tabsContainer = document.getElementById("tabsContainer");
+        tabsContainer.innerHTML = "";
+
+        apiData.forEach((item, index) => {
+          const tab = document.createElement("div");
+          tab.className = `tab ${index === currentTab ? "active" : ""}`;
+          tab.textContent = item.title;
+          tab.onclick = () => switchTab(index);
+          tabsContainer.appendChild(tab);
+        });
+      }
+
+      // tab change function
+      function switchTab(tabIndex) {
+        currentTab = tabIndex;
+
+        // record user activity
+        recordActivity();
+
+        // save selected tab to localStorage
+        saveToLocalStorage("currentTab", currentTab);
+
+        // update tab classes
+        const tabs = document.querySelectorAll(".tab");
+        tabs.forEach((tab, index) => {
+          tab.classList.toggle("active", index === tabIndex);
+        });
+
+        // update monitor data
+        if (apiData[tabIndex] && apiData[tabIndex].monitor) {
+          monitorData = apiData[tabIndex].monitor;
+
+          // update grid
+          updateGrid();
+        }
+      }
+
+      // automatic tab switching function
+      function startAutoSwitch() {
+        if (autoSwitchInterval) {
+          clearInterval(autoSwitchInterval);
+        }
+
+        autoSwitchInterval = setInterval(() => {
+          const now = Date.now();
+          const timeSinceLastActivity = now - lastActivity;
+
+          // if 30 seconds have passed since last activity
+          if (timeSinceLastActivity >= 30000) {
+            if (apiData.length > 1) {
+              const nextTab = (currentTab + 1) % apiData.length;
+              switchTab(nextTab);
+            }
+          }
+        }, 5000); // check every 5 seconds
+      }
+
+      // stop auto switch function
+      function stopAutoSwitch() {
+        if (autoSwitchInterval) {
+          clearInterval(autoSwitchInterval);
+          autoSwitchInterval = null;
+        }
+      }
+
+      // record user activity function
+      function recordActivity() {
+        lastActivity = Date.now();
+      }
+
+      // auto switch control function
+      function toggleAutoSwitch() {
+        const button = document.getElementById("autoSwitchBtn");
+
+        if (autoSwitchInterval) {
+          // stop auto switch
+          stopAutoSwitch();
+          button.innerHTML = "🔄 Auto Switch";
+          button.classList.remove("active");
+        } else {
+          // start auto switch
+          startAutoSwitch();
+          button.innerHTML = "⏸️Switch";
+          button.classList.add("active");
+        }
+      }
+
+      // fullscreen function
+      function toggleFullscreen() {
+        const button = event.target;
+
+        if (!document.fullscreenElement) {
+          // enter fullscreen mode
+          if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+          } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen();
+          } else if (document.documentElement.msRequestFullscreen) {
+            document.documentElement.msRequestFullscreen();
+          }
+
+          // update button
+          button.innerHTML = "🪟 Exit Fullscreen";
+          button.classList.add("active");
+        } else {
+          // exit fullscreen mode
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+
+          // update button
+          button.innerHTML = "🖥️ Fullscreen";
+          button.classList.remove("active");
+        }
+      }
+
+      // listen to fullscreen changes
+      document.addEventListener("fullscreenchange", updateFullscreenButton);
+      document.addEventListener(
+        "webkitfullscreenchange",
+        updateFullscreenButton
+      );
+      document.addEventListener("mozfullscreenchange", updateFullscreenButton);
+      document.addEventListener("MSFullscreenChange", updateFullscreenButton);
+
+      function updateFullscreenButton() {
+        const button = document.querySelector(
+          'button[onclick="toggleFullscreen()"]'
+        );
+        if (button) {
+          if (document.fullscreenElement) {
+            button.innerHTML = "🪟 Exit Fullscreen";
+            button.classList.add("active");
+          } else {
+            button.innerHTML = "🖥️ Fullscreen";
+            button.classList.remove("active");
+          }
+        }
+      }
+
+      // PWA install function
+      function installPWA() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === "accepted") {
+            } else {
+            }
+            deferredPrompt = null;
+            document.getElementById("installBtn").style.display = "none";
+          });
+        }
+      }
+
+      // API update function with cache clearing
+      function refreshAPI() {
+        // clear all cache
+        localStorage.removeItem("apiData");
+        localStorage.removeItem("monitorRows");
+        localStorage.removeItem("monitorCols");
+        localStorage.removeItem("currentTab");
+
+        // refresh page
+        window.location.reload();
+      }
+
+      // URL management variables
+      let currentAPIUrl = "";
+      let fallbackData = null;
+
+      // sample data
+      const sampleData = {
+        data: [
+          {
+            title: "Monitor",
+            monitor: [
+              {
+                name: "Google",
+                url: "https://www.google.com/",
+                width: 1,
+                zoom: 40,
+              },
+              {
+                name: "YouTube",
+                url: "https://www.youtube.com/",
+                width: 1,
+                zoom: 40,
+              },
+              {
+                name: "Facebook",
+                url: "https://www.facebook.com/",
+                width: 1,
+                zoom: 40,
+              },
+              {
+                name: "Twitter",
+                url: "https://twitter.com/",
+                width: 1,
+                zoom: 40,
+              },
+              {
+                name: "Instagram",
+                url: "https://www.instagram.com/",
+                zoom: 40,
+                width: 2,
+              },
+              {
+                name: "LinkedIn",
+                url: "https://www.linkedin.com/",
+                zoom: 30,
+              },
+            ],
+          },
+          {
+            title: "Uptime",
+            monitor: [
+              {
+                name: "example 7",
+                url: "https://www.example.com/",
+                zoom: 30,
+                width: 1,
+              },
+              {
+                name: "example 8",
+                url: "https://www.example.com/",
+                zoom: 20,
+                width: 1,
+              },
+              {
+                name: "example 9",
+                url: "https://www.example.com/",
+                zoom: 30,
+                width: 1,
+              },
+              {
+                name: "example 10",
+                url: "https://www.example.com/",
+                zoom: 30,
+                width: 1,
+              },
+              {
+                name: "example 11",
+                url: "https://www.example.com/",
+                zoom: 40,
+                width: 1,
+              },
+              {
+                name: "example 12",
+                url: "https://www.example.com/",
+                zoom: 30,
+                width: 1,
+              },
+            ],
+          },
+        ],
+      };
+
+      // use sample data function
+      function useSampleData() {
+        updateStatus("Loading sample data...", "");
+
+        if (sampleData.data && Array.isArray(sampleData.data)) {
+          apiData = sampleData.data;
+          createTabs();
+
+          if (apiData.length > 0) {
+            const savedTab = loadFromLocalStorage("currentTab", 1);
+            const tabIndex = Math.min(savedTab, apiData.length - 1);
+            switchTab(tabIndex);
+          }
+
+          saveToLocalStorage("apiData", apiData);
+          saveToLocalStorage("currentTab", currentTab);
+
+          const now = new Date();
+          const timeString = now.toLocaleTimeString("fa-IR");
+          updateStatus(
+            `Last update: ${timeString} (${monitorData.length} items) - from sample data`,
+            "Next update: 5 minutes"
+          );
+        } else {
+          updateStatus("Error loading sample data", "Please refresh the page");
+          console.error("Error: invalid sample data structure");
+        }
+      }
+
+      // show URL management modal function
+      function showAPIUrlManager() {
+        const modal = document.getElementById("urlManagerModal");
+        const apiUrlInput = document.getElementById("apiUrlInput");
+        const jsonEditor = document.getElementById("jsonEditor");
+
+        // load current URL
+        currentAPIUrl = loadFromLocalStorage("apiUrl", "");
+        apiUrlInput.value = currentAPIUrl;
+
+        // load sample JSON in editor
+        jsonEditor.value = JSON.stringify(sampleData, null, 2);
+
+        modal.style.display = "flex";
+      }
+
+      // close modal function
+      function closeAPIUrlManager() {
+        const modal = document.getElementById("urlManagerModal");
+        modal.style.display = "none";
+      }
+
+      // save URL function
+      function saveAPIUrl() {
+        const apiUrlInput = document.getElementById("apiUrlInput");
+        const newUrl = apiUrlInput.value.trim();
+
+        if (newUrl) {
+          currentAPIUrl = newUrl;
+          saveToLocalStorage("apiUrl", currentAPIUrl);
+          alert("✅ API URL saved successfully!");
+          closeAPIUrlManager();
+
+          // load data from new API
+          fetchMonitorData();
+        } else {
+          alert("❌ Please enter a valid URL!");
+        }
+      }
+
+      // apply JSON from editor function
+      function applyJsonData() {
+        const jsonEditor = document.getElementById("jsonEditor");
+        const jsonText = jsonEditor.value.trim();
+
+        if (!jsonText) {
+          alert("❌ Please enter JSON!");
+          return;
+        }
+
+        try {
+          const parsedData = JSON.parse(jsonText);
+
+          if (parsedData.data && Array.isArray(parsedData.data)) {
+            // clear URL and use JSON
+            localStorage.removeItem("apiUrl");
+            localStorage.removeItem("apiData");
+
+            // use new JSON
+            apiData = parsedData.data;
+            createTabs();
+
+            if (apiData.length > 0) {
+              const savedTab = loadFromLocalStorage("currentTab", 1);
+              const tabIndex = Math.min(savedTab, apiData.length - 1);
+              switchTab(tabIndex);
+            }
+
+            saveToLocalStorage("apiData", apiData);
+            saveToLocalStorage("currentTab", currentTab);
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString("fa-IR");
+            updateStatus(
+              `Last update: ${timeString} (${monitorData.length} items) - from custom JSON`,
+              "Next update: 5 minutes"
+            );
+
+            alert("✅ Custom JSON applied successfully!");
+            closeAPIUrlManager();
+          } else {
+            alert("❌ Invalid JSON structure! Must include 'data' array.");
+          }
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          alert("❌ Invalid JSON!\n" + error.message);
+        }
+      }
+
+      // reset URL function
+      function resetAPIUrl() {
+        const apiUrlInput = document.getElementById("apiUrlInput");
+
+        // clear saved URL
+        apiUrlInput.value = "";
+        currentAPIUrl = "";
+        localStorage.removeItem("apiUrl");
+        localStorage.removeItem("apiData"); // clear API data
+
+        // return to sample data
+        useSampleData();
+
+        alert("✅ URL cleared! Using sample data");
+        closeAPIUrlManager();
+      }
+
+      // scroll to top function
+      function scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      // manage scroll to top button display
+      function handleScrollToTop() {
+        const scrollButton = document.getElementById("scrollToTop");
+        if (window.scrollY > 300) {
+          scrollButton.classList.add("visible");
+        } else {
+          scrollButton.classList.remove("visible");
+        }
+      }
+
+      // initial loading
+      document.addEventListener("DOMContentLoaded", function () {
+        // load settings from localStorage
+        loadSettings();
+
+        // if no data in localStorage, use sample data
+        if (apiData.length === 0) {
+          useSampleData();
+        } else {
+          // create tabs
+          createTabs();
+          // show saved tab
+          switchTab(currentTab);
+        }
+
+        updateStatus("Initial loading", "Next update: 5 minutes");
+
+        startAutoRefresh(); // start automatic API update
+        startIframeRefresh(); // start automatic iframe refresh
+
+        // add event listener for scroll
+        window.addEventListener("scroll", handleScrollToTop);
+
+        // register Service Worker for PWA
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker
+            .register("sw.js")
+            .then((registration) => {})
+            .catch((error) => {});
+        }
+
+        // PWA install management
+        let deferredPrompt;
+        const installBtn = document.getElementById("installBtn");
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display = "block";
+        });
+
+        installBtn.addEventListener("click", (e) => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === "accepted") {
+              } else {
+              }
+              deferredPrompt = null;
+              installBtn.style.display = "none";
+            });
+          }
+        });
+
+        // hide install button after installation
+        window.addEventListener("appinstalled", (evt) => {
+          installBtn.style.display = "none";
+        });
+
+        // start auto switch
+        startAutoSwitch();
+
+        // record user activity
+        document.addEventListener("mousemove", recordActivity);
+        document.addEventListener("mousedown", recordActivity);
+        document.addEventListener("keydown", recordActivity);
+        document.addEventListener("scroll", recordActivity);
+        document.addEventListener("touchstart", recordActivity);
+        document.addEventListener("touchmove", recordActivity);
+      });
+    </script>
+  </body>
+</html>
