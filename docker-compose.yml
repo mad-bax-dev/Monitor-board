@@ -9,5 +9,6 @@ services:
       - ./logo.jpg:/usr/share/nginx/html/logo.jpg:ro
       - ./manifest.json:/usr/share/nginx/html/manifest.json:ro
       - ./sw.js:/usr/share/nginx/html/sw.js:ro
+      - ./sdf.json:/usr/share/nginx/html/sdf.json:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
