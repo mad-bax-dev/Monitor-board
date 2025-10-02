@@ -27,7 +27,7 @@ A modern monitoring dashboard for systems and services with multi-display suppor
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/monitoring-board.git
+git clone https://github.com/mad-bax-dev/Monitor-board.git
 cd monitoring-board
 
 # Run with Docker Compose
