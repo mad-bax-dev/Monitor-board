@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./monitoring-board.html:/usr/share/nginx/html/index.html:ro
+      - ./index.html:/usr/share/nginx/html/index.html:ro
       - ./logo.jpg:/usr/share/nginx/html/logo.jpg:ro
       - ./manifest.json:/usr/share/nginx/html/manifest.json:ro
       - ./sw.js:/usr/share/nginx/html/sw.js:ro
